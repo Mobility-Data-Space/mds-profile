@@ -1,0 +1,23 @@
+{
+  "@context": [
+    "https://w3id.org/edc/connector/management/v2",
+    "https://w3id.org/mobility-dataspace/2026/1/policy/context.jsonld"
+  ],
+  "@type": "PolicyDefinition",
+  "@id": "mds-members-only",
+  "policy": {
+    "@type": "Set",
+    "permission": [
+      {
+        "action": "use",
+        "constraint": [
+          {
+            "leftOperand": "Membership",
+            "operator": "eq",
+            "rightOperand": "active"
+          }
+        ]
+      }
+    ]
+  }
+}
