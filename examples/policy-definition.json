@@ -1,7 +1,7 @@
 {
   "@context": [
     "https://w3id.org/edc/connector/management/v2",
-    "https://w3id.org/mobility-dataspace/2026/1/policy/context.jsonld"
+    "https://w3id.org/mobility-dataspace/connector/management/v1"
   ],
   "@type": "PolicyDefinition",
   "@id": "mds-members-only",
