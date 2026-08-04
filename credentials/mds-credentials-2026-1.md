@@ -54,6 +54,7 @@ When a participant's group set changes, the issuer **MUST** revoke the existing 
   ],
   "jsonSchemaUrl": "https://w3id.org/mobility-dataspace/2026/1/credentials/MembershipCredential.schema.json",
   "mappings": [
+    { "input": "participantId", "output": "credentialSubject.participantId", "required": true },
     { "input": "active", "output": "credentialSubject.active", "required": true }
   ]
 }
@@ -71,6 +72,7 @@ When a participant's group set changes, the issuer **MUST** revoke the existing 
   ],
   "jsonSchemaUrl": "https://w3id.org/mobility-dataspace/2026/1/credentials/GroupMembershipCredential.schema.json",
   "mappings": [
+    { "input": "participantId", "output": "credentialSubject.participantId", "required": true },
     { "input": "groups", "output": "credentialSubject.groups", "required": true }
   ]
 }
