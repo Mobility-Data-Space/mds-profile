@@ -18,13 +18,19 @@ MDS-specific verifiable credentials a participant presents under the Decentraliz
 
 ### 3.1 MembershipCredential
 
-Attests that the subject is a participant of the Mobility Data Space. It is the base credential of the dataspace: a participant holds exactly one, and every other MDS credential presupposes it. Issued by the MDS credential issuer once onboarding completes. `active` records whether the membership is in good standing.
+Attests that the subject is a participant of the Mobility Data Space. 
+It is the base credential of the dataspace: a participant holds exactly one, and every other MDS credential presupposes it. 
+Issued by the MDS credential issuer once onboarding completes. 
+`active` records whether the membership is in good standing.
 
 ### 3.2 GroupMembershipCredential
 
-Attests that the subject belongs to one or more MDS groups. A group is a set of participants maintained by MDS governance for policy targeting, so a provider can restrict an offer to a category of consumers without enumerating their participant identifiers. The set of valid identifiers is maintained by MDS governance and is not fixed by this profile version.
+Attests that the subject belongs to one or more MDS groups. 
+A group is a set of participants maintained by MDS governance for policy targeting, so a provider can restrict an offer to a category of consumers without enumerating their participant identifiers. 
+The set of valid identifiers is maintained by MDS governance and is not fixed by this profile version.
 
-A participant holds at most one GroupMembershipCredential, listing all its groups. When a participant's group set changes, the issuer **MUST** revoke the existing credential and issue a replacement. It is meaningful only alongside a valid MembershipCredential; a verifier **MUST NOT** accept it on its own as evidence of MDS membership.
+A participant holds at most one GroupMembershipCredential, listing all its groups. 
+When a participant's group set changes, the issuer **MUST** revoke the existing credential and issue a replacement. It is meaningful only alongside a valid MembershipCredential; a verifier **MUST NOT** accept it on its own as evidence of MDS membership.
 
 ## 4. Policy operand bindings
 
@@ -34,25 +40,7 @@ A participant holds at most one GroupMembershipCredential, listing all its group
 | `Membership` | `MembershipCredential` | `active` |
 | `Group` | `GroupMembershipCredential` | `groups` |
 
-## 5. Issuer configuration
-
-### 5.1 Attestation definitions
-
-MDS uses two `database` attestations, one per credential, so that membership facts and group assignments can be administered and reloaded independently.
-
-```json
-{
-  "id": "mds-groups",
-  "attestationType": "database",
-  "configuration": {
-    "dataSourceName": "mds_groups",
-    "tableName": "mds_groups_v",
-    "idColumn": "holder_id"
-  }
-}
-```
-
-### 5.2 Credential definitions
+## 5. MDS Credential definitions
 
 ```json
 {
@@ -88,9 +76,9 @@ MDS uses two `database` attestations, one per credential, so that membership fac
 }
 ```
 
-## 6. Group lifecycle
+## 6. GroupMembershipCredential lifecycle
 
-Groups are administered in the MDS Portal and stored in the groups database that the `mds-holder-groups` attestation reads. 
+Groups are administered in the MDS Portal and stored in the groups database that the `mds-groups` attestation reads. 
 **A write to the groups database has no effect on a GroupMembershipCredential that has already been issued** — the credential is a signed snapshot taken at issuance time. Changing a participant's groups therefore requires three things: the database write, revocation of the outstanding credential, and a fresh request by the participant.
 
 ```mermaid
