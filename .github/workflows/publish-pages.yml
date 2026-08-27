@@ -1,0 +1,51 @@
+name: Publish profile to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Assemble the site
+        run: |
+          set -euo pipefail
+          rm -rf public
+          mkdir -p public/2026/1/policy public/2026/1/credentials
+
+          # Jekyll config lives here, not in the repository root, so that the
+          # repository stays a specification and not a website.
+          cat > public/_config.yml <<'EOF'
+          title: Mobility Data Space dataspace profile
+          description: JSON-LD contexts, vocabularies and credential schemas of the MDS dataspace profile.
+          theme: jekyll-theme-primer
+          EOF
+
+          # GitHub Pages renders each index.md to the HTML served at its directory.
+          # The profile is served at the policy namespace too, since it specifies
+          # the policy operands minted there.
+          cp 2026/1/mds-2026-1.md                         public/index.md
+          cp 2026/1/mds-2026-1.md                         public/2026/1/index.md
+          cp 2026/1/mds-2026-1.md                         public/2026/1/policy/index.md
+          cp 2026/1/credentials/mds-credentials-2026-1.md public/2026/1/credentials/index.md
+
+          # Machine-readable artefacts, served verbatim at their w3id paths.
+          cp 2026/1/policy/context.jsonld      public/2026/1/policy/
+          cp 2026/1/credentials/context.jsonld public/2026/1/credentials/
+          cp 2026/1/credentials/*.schema.json  public/2026/1/credentials/
+
+          find public -type f | sort
+
+      - uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          publish_branch: gh-pages
+          enable_jekyll: true

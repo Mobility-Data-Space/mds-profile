@@ -1,3 +1,6 @@
+---
+---
+
 # MDS Verifiable Credentials — 2026/1
 
 > **Status — DRAFT.** This document specifies the verifiable credentials of profile version `2026/1` of the Mobility Data Space dataspace profile. It is not yet released.
@@ -13,6 +16,7 @@ MDS-specific verifiable credentials a participant presents under the Decentraliz
 | Issuer | `did:web` DID under a domain controlled by the MDS credential issuer. A verifier **MUST** reject a credential whose issuer is not in its configured set of trusted issuers for the credential type — a valid signature alone is not sufficient. |
 | Subject binding | `credentialSubject.id` **MUST** be the holder's DID and **MUST** equal the DID that authenticates in the presentation exchange. |
 | Participant identifier | Every subject carries `participantId`, assigned at onboarding, bound to the `ParticipantId` policy operand. |
+| Subject schema | Every credential **MUST** carry a `credentialSchema` of type `JsonSchema` whose `id` is the JSON Schema of its subject, published under `https://w3id.org/mobility-dataspace/2026/1/credentials/`. A verifier resolves it and rejects a credential whose `credentialSubject` does not validate; a credential that omits the property is not checked at all. |
 
 ## 3. Credentials
 
