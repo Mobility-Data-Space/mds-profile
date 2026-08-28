@@ -1,0 +1,75 @@
+---
+---
+
+# MDS Dataspace Profile — 2026/1
+
+> **Status — DRAFT.** This document specifies profile version `2026/1` of the Mobility Data Space dataspace profile. It is not yet released.
+
+## 1. Overview
+
+This profile is the configuration contract an EDC connector satisfies in order to participate in the Mobility Data Space. It bundles:
+
+- the wire protocol — Dataspace Protocol over HTTPS, version `2025-1`;
+- the JSON-LD vocabulary for MDS policy terms and the MDS credential model;
+- the DCP scopes needed to obtain the credentials MDS relies on;
+- the credential model itself, stated normatively;
+
+## 2. Profile identity
+
+| Property | Value |
+|---|---|
+| Profile id | `mds-2026-1` |
+| Protocol version | `2025-1` |
+| Protocol binding | `HTTPS` |
+| Protocol namespace (DSP) | `https://w3id.org/dspace/2025/1/` |
+| Policy namespace | `https://w3id.org/mobility-dataspace/2026/1/policy/` |
+| Credentials namespace | `https://w3id.org/mobility-dataspace/2026/1/credentials/` |
+
+
+## 3. Dataspace profile configuration
+
+```json
+{
+  "@context": ["https://w3id.org/edc/connector/management/v2"],
+  "@type": "DataspaceProfile",
+  "name": "mds-2026-1",
+  "protocol": {
+    "version": "2025-1",
+    "binding": "https",
+    "namespace": "https://w3id.org/dspace/2025/1/"
+  },
+  "jsonLdContextsUrl": [
+    "https://w3id.org/dspace/2025/1/context.jsonld",
+    "https://w3id.org/edc/dspace/v0.0.1",
+    "https://w3id.org/mobility-dataspace/2026/1/policy/context.jsonld",
+    "https://w3id.org/mobility-dataspace/2026/1/credentials/context.jsonld"
+  ]
+}
+```
+
+## 4. DCP scope
+
+```properties
+edc.iam.dcp.scopes.mdsmembership.id=mds-membership
+edc.iam.dcp.scopes.mdsmembership.type=DEFAULT
+edc.iam.dcp.scopes.mdsmembership.value=org.eclipse.dspace.dcp.vc.type:MembershipCredential:read
+edc.iam.dcp.scopes.mdsmembership.profile=mds-2026-1
+
+edc.iam.dcp.scopes.mdsgroupmembership.id=mds-group-membership
+edc.iam.dcp.scopes.mdsgroupmembership.type=DEFAULT
+edc.iam.dcp.scopes.mdsgroupmembership.value=org.eclipse.dspace.dcp.vc.type:GroupMembershipCredential:read
+edc.iam.dcp.scopes.mdsgroupmembership.profile=mds-2026-1
+```
+
+## 5. Policy operands
+
+This profile version defines four operands, all in the policy namespace `https://w3id.org/mobility-dataspace/2026/1/policy/`.
+
+| Operand | Operators | Right operand | Source |
+|---|---|---|---|
+| `ParticipantId` | `eq`, `isPartOf` | string, or array of strings for `isPartOf` |`MembershipCredential.credentialSubject.participantId` |
+| `Membership` | `eq` | the string `active` | `MembershipCredential.credentialSubject.active` |
+| `Group` | `eq`, `isAnyOf`, `isAllOf` | string, or array of strings for `isAnyOf` / `isAllOf` | `GroupMembershipCredential.credentialSubject.groups` |
+| `PolicyEvaluationTime` | `eq`, `neq`, `lt`, `lteq`, `gt`, `gteq` | RFC 3339 instant | the runtime clock |
+
+The credentials backing these operands are specified in [MDS Verifiable Credentials — 2026/1](https://w3id.org/mobility-dataspace/2026/1/credentials/).
