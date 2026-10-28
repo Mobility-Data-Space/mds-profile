@@ -56,19 +56,24 @@ edc.iam.dcp.scopes.mdsmembership.value=org.eclipse.dspace.dcp.vc.type:Membership
 edc.iam.dcp.scopes.mdsmembership.profile=mds-2026-1
 
 edc.iam.dcp.scopes.mdsgroupmembership.id=mds-group-membership
-edc.iam.dcp.scopes.mdsgroupmembership.type=DEFAULT
+edc.iam.dcp.scopes.mdsgroupmembership.type=POLICY
 edc.iam.dcp.scopes.mdsgroupmembership.value=org.eclipse.dspace.dcp.vc.type:GroupMembershipCredential:read
+edc.iam.dcp.scopes.mdsgroupmembership.prefix-mapping=https://w3id.org/mobility-dataspace/2026/1/policy/Group
 edc.iam.dcp.scopes.mdsgroupmembership.profile=mds-2026-1
 ```
+
+The MembershipCredential scope is `DEFAULT`: it is requested on every DSP request. The GroupMembershipCredential scope is `POLICY`: it is requested only when the policy under evaluation contains a constraint whose expanded left operand starts with `prefix-mapping`, so a participant's groups are disclosed only to counterparties whose policy targets groups.
 
 ## 5. Policy operands
 
 This profile version defines four operands, all in the policy namespace `https://w3id.org/mobility-dataspace/2026/1/policy/`.
 
+Left operands **MUST** expand to IRIs in `https://w3id.org/mobility-dataspace/2026/1/policy/`. A policy using the short operand names **MUST** therefore include the MDS policy context `https://w3id.org/mobility-dataspace/2026/1/policy/context.jsonld` in its `@context`; otherwise the names do not expand to MDS IRIs and the constraints are not evaluated as MDS operands.
+
 | Operand | Operators | Right operand | Source |
 |---|---|---|---|
 | `ParticipantId` | `eq`, `isAnyOf` | string, or array of strings for `isAnyOf` |`MembershipCredential.credentialSubject.participantId` |
-| `Membership` | `eq` | the string `active` | `MembershipCredential.credentialSubject.active` |
+| `Membership` | `eq` | the string `active` | presence of a valid, unrevoked `MembershipCredential` from a trusted MDS issuer |
 | `Group` | `eq`, `isAnyOf`, `isAllOf` | string, or array of strings for `isAnyOf` / `isAllOf` | `GroupMembershipCredential.credentialSubject.groups` |
 | `PolicyEvaluationTime` | `eq`, `neq`, `lt`, `lteq`, `gt`, `gteq` | RFC 3339 instant | the runtime clock |
 
