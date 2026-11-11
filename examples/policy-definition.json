@@ -8,6 +8,7 @@
   "@id": "mds-members-only",
   "policy": {
     "@type": "Set",
+    "profile": "https://w3id.org/mobility-dataspace/2026/1/policy/",
     "permission": [
       {
         "action": "use",

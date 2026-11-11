@@ -5,7 +5,7 @@
 
 > **Status — DRAFT.** This document specifies profile version `2026/1` of the Mobility Data Space dataspace profile. It is not yet released.
 
-## 1. Overview
+## Introduction
 
 This profile is the configuration contract an EDC connector satisfies in order to participate in the Mobility Data Space. It bundles:
 
@@ -14,7 +14,7 @@ This profile is the configuration contract an EDC connector satisfies in order t
 - the DCP scopes needed to obtain the credentials MDS relies on;
 - the credential model itself, stated normatively;
 
-## 2. Profile identity
+## Profile identity
 
 | Property | Value |
 |---|---|
@@ -26,7 +26,7 @@ This profile is the configuration contract an EDC connector satisfies in order t
 | Credentials namespace | `https://w3id.org/mobility-dataspace/2026/1/credentials/` |
 
 
-## 3. Dataspace profile configuration
+## Dataspace profile configuration
 
 ```json
 {
@@ -47,7 +47,7 @@ This profile is the configuration contract an EDC connector satisfies in order t
 }
 ```
 
-## 4. DCP scope
+## DCP scope
 
 ```properties
 edc.iam.dcp.scopes.mdsmembership.id=mds-membership
@@ -64,26 +64,15 @@ edc.iam.dcp.scopes.mdsgroupmembership.profile=mds-2026-1
 
 The MembershipCredential scope is `DEFAULT`: it is requested on every DSP request. The GroupMembershipCredential scope is `POLICY`: it is requested only when the policy under evaluation contains a constraint whose expanded left operand starts with `prefix-mapping`, so a participant's groups are disclosed only to counterparties whose policy targets groups.
 
-## 5. Policy operands
+## MDS usage policies
 
-This profile version defines four operands, all in the policy namespace `https://w3id.org/mobility-dataspace/2026/1/policy/`.
+The ODRL profile is specified in [MDS ODRL Profile — 2026/1](https://mobility-data-space.github.io/mds-profile/2026/1/policy/). It defines four left operands in `https://w3id.org/mobility-dataspace/2026/1/policy/` (`Membership`, `ParticipantId`, `Group`, `EvaluationTime`), the operators and right operands each allows, and what each is evaluated against.
 
-Left operands **MUST** expand to IRIs in `https://w3id.org/mobility-dataspace/2026/1/policy/`. A policy using the short operand names **MUST** therefore include the MDS policy context `https://w3id.org/mobility-dataspace/2026/1/policy/context.jsonld` in its `@context`; otherwise the names do not expand to MDS IRIs and the constraints are not evaluated as MDS operands.
-
-| Operand | Operators | Right operand | Source |
-|---|---|---|---|
-| `ParticipantId` | `eq`, `isAnyOf` | string, or array of strings for `isAnyOf` |`MembershipCredential.credentialSubject.participantId` |
-| `Membership` | `eq` | the string `active` | presence of a valid, unrevoked `MembershipCredential` from a trusted MDS issuer |
-| `Group` | `eq`, `isAnyOf`, `isAllOf` | string, or array of strings for `isAnyOf` / `isAllOf` | `GroupMembershipCredential.credentialSubject.groups` |
-| `PolicyEvaluationTime` | `eq`, `neq`, `lt`, `lteq`, `gt`, `gteq` | RFC 3339 instant | the runtime clock |
-
-The credentials backing these operands are specified in [MDS Verifiable Credentials — 2026/1](https://w3id.org/mobility-dataspace/2026/1/credentials/).
-
-## 6. Participant DID documents
+## Participant DID documents
 
 Each MDS participant is identified by a Decentralized Identifier (DID), whose DID document is resolved by other participants during DCP-based authentication.
 
-### 6.1 Service endpoints
+### Service endpoints
 
 A participant's DID document advertises the services other participants need to reach it, as entries of its `service` array (see [DID Core, §5.4](https://www.w3.org/TR/did-core/#services)).
 

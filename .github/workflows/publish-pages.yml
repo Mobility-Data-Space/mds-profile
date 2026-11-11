@@ -29,11 +29,9 @@ jobs:
           EOF
 
           # GitHub Pages renders each index.md to the HTML served at its directory.
-          # The profile is served at the policy namespace too, since it specifies
-          # the policy operands minted there.
           cp 2026/1/mds-2026-1.md                         public/index.md
           cp 2026/1/mds-2026-1.md                         public/2026/1/index.md
-          cp 2026/1/mds-2026-1.md                         public/2026/1/policy/index.md
+          cp 2026/1/policy/mds-odrl-profile-2026-1.md    public/2026/1/policy/index.md
           cp 2026/1/credentials/mds-credentials-2026-1.md public/2026/1/credentials/index.md
 
           # Machine-readable artefacts, served verbatim at their w3id paths.
