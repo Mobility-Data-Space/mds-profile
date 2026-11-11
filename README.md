@@ -16,6 +16,7 @@ The repository mirrors the URI space of the profile, so every published artefact
 
 ```
 2026/1/mds-2026-1.md                                    the profile specification
+2026/1/policy/mds-odrl-profile-2026-1.md                ODRL profile specification
 2026/1/policy/context.jsonld                            policy JSON-LD context
 2026/1/credentials/context.jsonld                       credentials JSON-LD context
 2026/1/credentials/mds-credentials-2026-1.md            credential specification
@@ -32,7 +33,7 @@ Everything is addressed through the [w3id.org](https://w3id.org) namespace `mobi
 | Identifier | Resolves to |
 |---|---|
 | `https://w3id.org/mobility-dataspace/2026/1/` | the profile specification |
-| `https://w3id.org/mobility-dataspace/2026/1/policy/` | the policy vocabulary namespace |
+| `https://w3id.org/mobility-dataspace/2026/1/policy/` | the ODRL profile namespace; resolves to the ODRL profile specification |
 | `https://w3id.org/mobility-dataspace/2026/1/policy/context.jsonld` | the policy JSON-LD context |
 | `https://w3id.org/mobility-dataspace/2026/1/credentials/` | the credentials vocabulary namespace |
 | `https://w3id.org/mobility-dataspace/2026/1/credentials/context.jsonld` | the credentials JSON-LD context |
