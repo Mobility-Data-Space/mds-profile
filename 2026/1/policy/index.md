@@ -1,115 +1,132 @@
 ---
 ---
 
-# MDS Dataspace Profile — 2026/1
+# MDS ODRL Profile — 2026/1
 
-> **Status — DRAFT.** This document specifies profile version `2026/1` of the Mobility Data Space dataspace profile. It is not yet released.
+> **Status — DRAFT.** This document specifies the ODRL profile of profile version `2026/1` of the [Mobility Data Space dataspace profile](https://mobility-data-space.github.io/mds-profile/2026/1/). It is not yet released.
 
-## 1. Overview
+## Introduction
 
-This profile is the configuration contract an EDC connector satisfies in order to participate in the Mobility Data Space. It bundles:
+This document specifies the MDS ODRL profile: the left operands MDS defines in the namespace `https://w3id.org/mobility-dataspace/2026/1/policy/`, how a policy writes constraints on them, and how a connector evaluates them. Policies are ODRL policies as carried by the Dataspace Protocol 2025-1.
 
-- the wire protocol — Dataspace Protocol over HTTPS, version `2025-1`;
-- the JSON-LD vocabulary for MDS policy terms and the MDS credential model;
-- the DCP scopes needed to obtain the credentials MDS relies on;
-- the credential model itself, stated normatively;
+| Operand | Denotes | Evaluated against |
+|---|---|---|
+| [`Membership`](#membership) | the counterparty is an MDS participant | an MDS MembershipCredential |
+| [`ParticipantId`](#participantid) | the counterparty's `did:web` DID | an MDS MembershipCredential |
+| [`Group`](#group) | the MDS groups the counterparty belongs to | an MDS GroupMembershipCredential |
+| [`EvaluationTime`](#evaluationtime) | the instant of evaluation | the evaluating connector's clock |
 
-## 2. Profile identity
+## Membership
 
-| Property | Value |
+**IRI:** `https://w3id.org/mobility-dataspace/2026/1/policy/Membership`
+
+### Definition
+
+The counterparty is an MDS participant.
+
+### Constraint
+
+| Operators | Right operand |
 |---|---|
-| Profile id | `mds-2026-1` |
-| Protocol version | `2025-1` |
-| Protocol binding | `HTTPS` |
-| Protocol namespace (DSP) | `https://w3id.org/dspace/2025/1/` |
-| Policy namespace | `https://w3id.org/mobility-dataspace/2026/1/policy/` |
-| Credentials namespace | `https://w3id.org/mobility-dataspace/2026/1/credentials/` |
-
-
-## 3. Dataspace profile configuration
+| `eq` | the string `active` |
 
 ```json
-{
-  "@context": ["https://w3id.org/edc/connector/management/v2"],
-  "@type": "DataspaceProfile",
-  "name": "mds-2026-1",
-  "protocol": {
-    "version": "2025-1",
-    "binding": "https",
-    "namespace": "https://w3id.org/dspace/2025/1/"
-  },
-  "jsonLdContextsUrl": [
-    "https://w3id.org/dspace/2025/1/context.jsonld",
-    "https://w3id.org/edc/dspace/v0.0.1",
-    "https://w3id.org/mobility-dataspace/2026/1/policy/context.jsonld",
-    "https://w3id.org/mobility-dataspace/2026/1/credentials/context.jsonld"
-  ]
-}
+{ "leftOperand": "Membership", "operator": "eq", "rightOperand": "active" }
 ```
 
-## 4. DCP scope
+### Evaluation
 
-```properties
-edc.iam.dcp.scopes.mdsmembership.id=mds-membership
-edc.iam.dcp.scopes.mdsmembership.type=DEFAULT
-edc.iam.dcp.scopes.mdsmembership.value=org.eclipse.dspace.dcp.vc.type:MembershipCredential:read
-edc.iam.dcp.scopes.mdsmembership.profile=mds-2026-1
+Permits when the counterparty presents at least one MDS MembershipCredential: a credential that
 
-edc.iam.dcp.scopes.mdsgroupmembership.id=mds-group-membership
-edc.iam.dcp.scopes.mdsgroupmembership.type=POLICY
-edc.iam.dcp.scopes.mdsgroupmembership.value=org.eclipse.dspace.dcp.vc.type:GroupMembershipCredential:read
-edc.iam.dcp.scopes.mdsgroupmembership.prefix-mapping=https://w3id.org/mobility-dataspace/2026/1/policy/Group
-edc.iam.dcp.scopes.mdsgroupmembership.profile=mds-2026-1
-```
+1. is valid: its proof verifies, it is within its validity period, it is not revoked, and its `credentialSubject.id` is the counterparty's DID;
+2. has a `type` that expands to `https://w3id.org/mobility-dataspace/2026/1/credentials/MembershipCredential`: the `type` holds that IRI, or holds `MembershipCredential` with the [MDS credentials context](https://mobility-data-space.github.io/mds-profile/2026/1/credentials/) in its `@context`;
+3. is issued by an MDS trusted issuer ([MDS trusted issuers](https://mobility-data-space.github.io/mds-profile/2026/1/)).
 
-The MembershipCredential scope is `DEFAULT`: it is requested on every DSP request. The GroupMembershipCredential scope is `POLICY`: it is requested only when the policy under evaluation contains a constraint whose expanded left operand starts with `prefix-mapping`, so a participant's groups are disclosed only to counterparties whose policy targets groups.
+A credential of the same type name from any other issuer, including an issuer the connector trusts for another dataspace, is not an MDS MembershipCredential. The type IRI states what a credential claims; the issuer decides whether the claim counts.
 
-## 5. Policy operands
+A connector **MUST** reject, when the policy is created, a `Membership` constraint with another operator or right operand.
 
-This profile version defines four operands, all in the policy namespace `https://w3id.org/mobility-dataspace/2026/1/policy/`.
+## ParticipantId
 
-Left operands **MUST** expand to IRIs in `https://w3id.org/mobility-dataspace/2026/1/policy/`. A policy using the short operand names **MUST** therefore include the MDS policy context `https://w3id.org/mobility-dataspace/2026/1/policy/context.jsonld` in its `@context`; otherwise the names do not expand to MDS IRIs and the constraints are not evaluated as MDS operands.
+**IRI:** `https://w3id.org/mobility-dataspace/2026/1/policy/ParticipantId`
 
-| Operand | Operators | Right operand | Source |
-|---|---|---|---|
-| `ParticipantId` | `eq`, `isAnyOf` | string, or array of strings for `isAnyOf` |`MembershipCredential.credentialSubject.participantId` |
-| `Membership` | `eq` | the string `active` | presence of a valid, unrevoked `MembershipCredential` from a trusted MDS issuer |
-| `Group` | `eq`, `isAnyOf`, `isAllOf` | string, or array of strings for `isAnyOf` / `isAllOf` | `GroupMembershipCredential.credentialSubject.groups` |
-| `PolicyEvaluationTime` | `eq`, `neq`, `lt`, `lteq`, `gt`, `gteq` | RFC 3339 instant | the runtime clock |
+### Definition
 
-The credentials backing these operands are specified in [MDS Verifiable Credentials — 2026/1](https://w3id.org/mobility-dataspace/2026/1/credentials/).
+The counterparty's participant identifier: its `did:web` DID ([MDS Participant DID Document](https://mobility-data-space.github.io/mds-profile/2026/1/)).
 
-## 6. Participant DID documents
+### Constraint
 
-Each MDS participant is identified by a Decentralized Identifier (DID), whose DID document is resolved by other participants during DCP-based authentication.
-
-### 6.1 Service endpoints
-
-A participant's DID document advertises the services other participants need to reach it, as entries of its `service` array (see [DID Core, §5.4](https://www.w3.org/TR/did-core/#services)).
-
-**Credential Service.** The DID document MUST contain a `service` entry of type `CredentialService`, as required by the [Decentralized Claims Protocol v1.0](https://eclipse-dataspace-dcp.github.io/decentralized-claims-protocol/v1.0/#credential-service-endpoint-discovery). Its `serviceEndpoint` is the base URL of the participant's Credential Service, from which verifiers request the MDS credentials.
-
-**Data Service.** Participants SHOULD publicize each of their connectors in their DID document, following [Discovery of Service Endpoints](https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#discovery-of-service-endpoints) in the Dataspace Protocol `2025-1`. In this case:
-
-- the participant MUST add one entry per connector to the `service` array, with the `id`, `type` and `serviceEndpoint` properties;
-- the entry's `type` MUST be `DataService`;
-- the entry's `serviceEndpoint` MUST be the connector's [version metadata endpoint](https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#exposure-of-dataspace-protocol-versions), i.e. the URL ending in `/.well-known/dspace-version`. A consumer resolves the `2025-1` protocol endpoints of the connector from the response of that endpoint.
-
-The following example shows the `service` array of a participant running one connector:
+| Operators | Right operand |
+|---|---|
+| `eq`, `neq` | one DID: a non-empty string without `,` |
+| `isAnyOf`, `isNoneOf` | one or more DIDs |
 
 ```json
-{
-  "service": [
-    {
-      "id": "did:web:identity.mobility-provider.example#credential-service",
-      "type": "CredentialService",
-      "serviceEndpoint": "https://identity.mobility-provider.example/api/credentials/v1/participants/ZGlkOndlYjppZGVudGl0eS5tb2JpbGl0eS1wcm92aWRlci5leGFtcGxl"
-    },
-    {
-      "id": "did:web:identity.mobility-provider.example#connector-1",
-      "type": "DataService",
-      "serviceEndpoint": "https://connector.mobility-provider.example/api/dsp/.well-known/dspace-version"
-    }
-  ]
-}
+{ "leftOperand": "ParticipantId", "operator": "isAnyOf", "rightOperand": ["did:web:connector.mobility-provider.example", "did:web:operator.example"] }
 ```
+
+```json
+{ "leftOperand": "ParticipantId", "operator": "isNoneOf", "rightOperand": ["did:web:competitor.example"] }
+```
+
+### Evaluation
+
+Permits when the counterparty presents an MDS MembershipCredential (see [Membership, Evaluation](#membership)) whose `credentialSubject.id`, which is the counterparty's DID:
+
+- equals the right operand (`eq`), or one of its DIDs (`isAnyOf`);
+- differs from the right operand (`neq`), or from all of its DIDs (`isNoneOf`).
+
+`neq` and `isNoneOf` exclude participants from the MDS members; they never permit a counterparty that does not present an MDS MembershipCredential.
+
+A connector **MUST** reject, when the policy is created, a `ParticipantId` constraint with another operator or right operand.
+
+## Group
+
+**IRI:** `https://w3id.org/mobility-dataspace/2026/1/policy/Group`
+
+### Definition
+
+The MDS groups the counterparty belongs to, as issued by MDS.
+
+### Constraint
+
+| Operators | Right operand |
+|---|---|
+| `eq` | one group identifier: a non-empty string without `,` |
+| `isAnyOf`, `isAllOf` | one or more group identifiers |
+
+```json
+{ "leftOperand": "Group", "operator": "isAnyOf", "rightOperand": ["parking-operators", "transit-authorities"] }
+```
+
+### Evaluation
+
+The counterparty's groups are the `groups` of its MDS GroupMembershipCredential, split on `,`. An MDS GroupMembershipCredential meets the conditions of an MDS MembershipCredential (see [Membership, Evaluation](#membership)), with `https://w3id.org/mobility-dataspace/2026/1/credentials/GroupMembershipCredential` (or `GroupMembershipCredential` with the MDS credentials context) as its type.
+
+Permits when the counterparty belongs to the group (`eq`), to at least one of the groups (`isAnyOf`), or to all of them (`isAllOf`).
+
+A connector **MUST** reject, when the policy is created, a `Group` constraint with another operator or right operand.
+
+## EvaluationTime
+
+**IRI:** `https://w3id.org/mobility-dataspace/2026/1/policy/EvaluationTime`
+
+### Definition
+
+The instant at which the policy is evaluated.
+
+### Constraint
+
+| Operators | Right operand |
+|---|---|
+| `eq`, `neq`, `lt`, `lteq`, `gt`, `gteq` | one RFC 3339 instant |
+
+```json
+{ "leftOperand": "EvaluationTime", "operator": "lt", "rightOperand": "2027-01-01T00:00:00Z" }
+```
+
+### Evaluation
+
+Permits when the evaluating connector's clock at evaluation compares with the right operand as the operator states. No credential is involved.
+
+A connector **MUST** reject, when the policy is created, an `EvaluationTime` constraint with another operator or right operand.
