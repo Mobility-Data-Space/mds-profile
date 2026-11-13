@@ -18,13 +18,13 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf public
-          mkdir -p public/2026/1/policy public/2026/1/credentials
+          mkdir -p public/2026/1/policy public/2026/1/credentials public/2026/1/vocabulary
 
           # Jekyll config lives here, not in the repository root, so that the
           # repository stays a specification and not a website.
           cat > public/_config.yml <<'EOF'
           title: Mobility Data Space dataspace profile
-          description: JSON-LD contexts, vocabularies and credential schemas of the MDS dataspace profile.
+          description: JSON-LD contexts, ODRL profile and credential schemas of the MDS dataspace profile.
           theme: jekyll-theme-primer
           EOF
 
@@ -33,11 +33,13 @@ jobs:
           cp 2026/1/mds-2026-1.md                         public/2026/1/index.md
           cp 2026/1/policy/mds-odrl-profile-2026-1.md    public/2026/1/policy/index.md
           cp 2026/1/credentials/mds-credentials-2026-1.md public/2026/1/credentials/index.md
+          cp 2026/1/vocabulary/mds-vocabulary-2026-1.md   public/2026/1/vocabulary/index.md
 
           # Machine-readable artefacts, served verbatim at their w3id paths.
           cp 2026/1/policy/context.jsonld      public/2026/1/policy/
           cp 2026/1/credentials/context.jsonld public/2026/1/credentials/
           cp 2026/1/credentials/*.schema.json  public/2026/1/credentials/
+          cp 2026/1/vocabulary/context.jsonld  public/2026/1/vocabulary/
 
           find public -type f | sort
 

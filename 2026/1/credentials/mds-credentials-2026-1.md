@@ -7,51 +7,63 @@
 
 ## Introduction
 
-MDS-specific verifiable credentials a participant presents under the Decentralized Claims Protocol to satisfy MDS policy constraints: for each credential type, what it attests, who may issue it, and the schema it MUST follow.
+This document specifies the MDS verifiable credentials: what each states, what an MDS Trusted Issuer issues, how a participant verifies it, and how the MDS Authority keeps it current. The MDS policy operands that read these credentials are specified in the [MDS ODRL Profile](https://mobility-data-space.github.io/mds-profile/2026/1/policy/).
 
-## Common requirements
+## Issued Credentials
+
+An MDS Trusted Issuer **MUST** issue MDS credentials that meet these requirements:
 
 | Requirement | Rule |
 |---|---|
-| Issuer | `did:web` DID under a domain controlled by the MDS credential issuer. A verifier **MUST** reject a credential whose issuer is not in its configured set of trusted issuers for the credential type — a valid signature alone is not sufficient. |
-| Format | Credentials are W3C VC Data Model 2.0, secured as JOSE (`VC2_0_JOSE`). |
-| Subject binding | `credentialSubject.id` **MUST** be the holder's DID and **MUST** equal the DID that authenticates in the presentation exchange. |
-| Participant identifier | Every subject carries `participantId`, assigned at onboarding, bound to the `ParticipantId` policy operand. |
-| Subject schema | Every credential **MUST** carry a `credentialSchema` of type `JsonSchema` whose `id` is the JSON Schema of its subject, published under `https://w3id.org/mobility-dataspace/2026/1/credentials/`. A verifier resolves it and rejects a credential whose `credentialSubject` does not validate; a credential that omits the property is not checked at all. |
-| Active membership | The issuer **MUST NOT** issue any MDS credential to a holder whose membership is not active. |
+| Format | W3C VC Data Model 2.0, secured as JOSE (`VC2_0_JOSE`). |
+| Context | `@context` is `https://www.w3.org/ns/credentials/v2` followed by `https://w3id.org/mobility-dataspace/2026/1/credentials/context.jsonld`. The MDS credentials context defines only the MDS terms and is `@protected`. |
+| Subject | `credentialSubject.id` is the holder's `did:web` DID ([Participant DID document](https://mobility-data-space.github.io/mds-profile/2026/1/#a-participant-did-document)). |
+| Subject schema | `credentialSchema` is of type `JsonSchema`, with the `id` of the JSON Schema of its subject, published under `https://w3id.org/mobility-dataspace/2026/1/credentials/`. |
+| Issuer | an MDS Trusted Issuer ([MDS Trusted Issuers](https://mobility-data-space.github.io/mds-profile/2026/1/#mds-authority-and-issuers-trusted-by-mds)). |
+
+## Credentials Verification
+
+An MDS credential is a credential issued by an MDS Trusted Issuer and found valid under DCP verification. A credential of the same type name from any other issuer is not an MDS credential. A verifier **SHOULD** also check its type:
+
+| Requirement | Rule |
+|---|---|
+| Issuer (**MUST**) | its issuer is an MDS Trusted Issuer. |
+| Type (**SHOULD**) | `MembershipCredential` or `GroupMembershipCredential` in the MDS credentials namespace. |
+
+A verifier **MUST** evaluate an MDS credential only if its `credentialSubject.id` is the DID of the authenticated counterparty.
+
+A verifier **MUST NOT** evaluate an MDS credential that is revoked or outside its validity period.
 
 ## Credentials
 
 ### MembershipCredential
 
-Attests that the subject is a participant of the Mobility Data Space. 
-It is the base credential of the dataspace: a participant holds exactly one, and every other MDS credential presupposes it. 
-Issued by the MDS credential issuer once onboarding completes. 
-`participantId` is taken from the holder record registered at the issuer during onboarding. 
-Membership is evidenced by holding a valid, unrevoked MembershipCredential. When a membership is deactivated, the issuer **MUST** revoke every outstanding MDS credential of that holder.
+- States that the subject is a participant of the Mobility Data Space.
+- It is the default credential of the dataspace: every other MDS credential presupposes it.
+- Issued by an MDS Trusted Issuer once onboarding completes.
+- Membership is evidenced by holding an MDS MembershipCredential ([Credentials Verification](#credentials-verification)).
 
 ### GroupMembershipCredential
 
-Attests that the subject belongs to one or more MDS groups. 
-A group is a set of participants maintained by MDS governance for policy targeting, so a provider can restrict an offer to a category of consumers without enumerating their participant identifiers. 
-The set of valid identifiers is maintained by MDS governance and is not fixed by this profile version.
+- States that the subject belongs to one or more MDS groups.
+- A group is a set of participants maintained by the MDS Authority for policy targeting, so a provider can restrict an offer to a category of consumers without enumerating their DIDs.
+- The set of valid identifiers is maintained by the MDS Authority and is not fixed by this profile version.
 
-`groups` is a **string** holding the subject's group identifiers separated by commas (for example `"public-transport,parking-operators"`). Consumers **MUST** split it on `,` to obtain the individual identifiers; a group identifier therefore **MUST NOT** contain a comma.
+`groups` is a **string** holding the subject's group identifiers separated by commas (for example `"public-transport,parking-operators"`). Consumers **MUST** split it on `,` to obtain the individual identifiers.
 
-A participant holds at most one GroupMembershipCredential, listing all its groups. 
-When a participant's group set changes, the issuer **MUST** revoke the existing credential and offer a replacement (see [Credentials lifecycle](#credentials-lifecycle)). It is meaningful only alongside a valid MembershipCredential; a verifier **MUST NOT** accept it on its own as evidence of MDS membership.
+A GroupMembershipCredential is issued only to MDS members and lists all the groups of its subject. When a participant's group set changes, it is revoked and replaced (see [Credentials lifecycle](#credentials-lifecycle)).
 
 ## Policy operand bindings
 
-| Operand | Credential | Subject property |
+| Operand | Credential | Read |
 |---|---|---|
-| `ParticipantId` | `MembershipCredential` | `participantId` |
-| `Membership` | `MembershipCredential` | — (presence of a valid, unrevoked credential) |
+| `Membership` | `MembershipCredential` | — (presence of an MDS MembershipCredential) |
+| `ParticipantId` | `MembershipCredential` | `credentialSubject.id` |
 | `Group` | `GroupMembershipCredential` | `groups` (comma-separated) |
 
 ## MDS Credential definitions
 
-> **Note — active membership.** The issuer keeps, for every registered participant, whether its membership is currently active; this state is maintained by the MDS Portal and is not part of any issued credential. Every credential request, including one that answers an offer, is accepted only while the membership is active. Revocation (see [Membership deactivation](#membership-deactivation)) invalidates the credentials already issued; this check prevents new ones from being issued once a membership has ended.
+> **Note — membership.** The MDS Trusted Issuers issue credentials only to registered holders; they keep no membership status. The MDS Authority decides membership and groups: it registers a holder when it onboards the participant and deletes it when the membership is revoked, so a credential request from a former member fails because its holder is unknown.
 
 ```json
 {
@@ -60,16 +72,11 @@ When a participant's group set changes, the issuer **MUST** revoke the existing 
   "format": "VC2_0_JOSE",
   "validity": 31536000,
   "attestations": ["mds-membership-attestation"],
-  "rules": [
-    { "type": "expression", "configuration": { "claim": "active", "operator": "eq", "value": true } }
-  ],
   "additionalContext": [
     "https://w3id.org/mobility-dataspace/2026/1/credentials/context.jsonld"
   ],
   "jsonSchemaUrl": "https://w3id.org/mobility-dataspace/2026/1/credentials/MembershipCredential.schema.json",
-  "mappings": [
-    { "input": "participantId", "output": "credentialSubject.participantId", "required": true }
-  ]
+  "mappings": []
 }
 ```
 
@@ -80,15 +87,11 @@ When a participant's group set changes, the issuer **MUST** revoke the existing 
   "format": "VC2_0_JOSE",
   "validity": 31536000,
   "attestations": ["mds-membership-attestation", "mds-group-membership-attestation"],
-  "rules": [
-    { "type": "expression", "configuration": { "claim": "active", "operator": "eq", "value": true } }
-  ],
   "additionalContext": [
     "https://w3id.org/mobility-dataspace/2026/1/credentials/context.jsonld"
   ],
   "jsonSchemaUrl": "https://w3id.org/mobility-dataspace/2026/1/credentials/GroupMembershipCredential.schema.json",
   "mappings": [
-    { "input": "participantId", "output": "credentialSubject.participantId", "required": true },
     { "input": "groups", "output": "credentialSubject.groups", "required": true }
   ]
 }
@@ -96,32 +99,29 @@ When a participant's group set changes, the issuer **MUST** revoke the existing 
 
 ## Credentials lifecycle
 
-The MDS Portal drives every change to an issued credential. It revokes the outstanding credentials and, where a replacement is due, asks the issuer to send a DCP Credential Offer; the holder answers the offer with a standard credential request, without any action by the participant.
+The MDS Authority drives every change to an issued credential. It revokes the outstanding credentials and, where a replacement is due, asks an MDS Trusted Issuer to offer it to the holder.
 
 The holder's Credential Service **MUST** support the DCP offer endpoint and initiate a credential request on receipt of an offer.
 
-### Membership deactivation
+### Membership revocation
+
+Revoking a membership means revoking every outstanding MDS credential of the holder, then deleting the holder at the MDS Trusted Issuers.
 
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Admin as MDS governance
-    participant Portal as MDS Portal
-    participant Issuer as MDS Issuer Service
-    participant Holder as Participant credential service
+    participant Authority as MDS Authority
+    participant Issuer as MDS Trusted Issuer
 
-    Admin->>Portal: deactivate participant
-    Portal->>Issuer: update holder (active = false)
-    Issuer-->>Portal: 200
-    Portal->>Issuer: query credentials for holder
-    Issuer-->>Portal: credential ids
+    Note over Authority: revoke membership
+    Authority->>Issuer: query credentials for holder
+    Issuer-->>Authority: credential ids
     loop each MembershipCredential / GroupMembershipCredential
-        Portal->>Issuer: revoke credential
-        Issuer-->>Portal: 204
+        Authority->>Issuer: revoke credential
+        Issuer-->>Authority: 204
     end
-
-    Holder->>Issuer: DCP credential request (any MDS credential)
-    Issuer-->>Holder: 401 unauthorized
+    Authority->>Issuer: delete holder
+    Issuer-->>Authority: 204
 ```
 
 ### Group change
@@ -129,27 +129,18 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Admin as MDS governance
-    participant Portal as MDS Portal
-    participant GAS as Groups Attestation
-    participant Issuer as MDS Issuer Service
-    participant Holder as Participant credential service
+    participant Authority as MDS Authority
+    participant Issuer as MDS Trusted Issuer
 
-    Admin->>Portal: assign / reassign / remove group
-    Portal->>GAS: update participant's groups
-    GAS-->>Portal: updated
+    Note over Authority: assign / reassign / remove group
 
     opt participant already holds a GroupMembershipCredential
-        Portal->>Issuer: query credentials for holder
-        Issuer-->>Portal: credential id
-        Portal->>Issuer: revoke credential
-        Issuer-->>Portal: 204
+        Authority->>Issuer: query credentials for holder
+        Issuer-->>Authority: credential id
+        Authority->>Issuer: revoke credential
+        Issuer-->>Authority: 204
     end
 
-    Portal->>Issuer: send credential offer<br/>(holder, mds-group-membership-credential)
-    Issuer-->>Portal: 204
-    Issuer->>Holder: DCP CredentialOfferMessage
-    Holder-->>Issuer: 2xx
-    Holder->>Issuer: DCP credential request<br/>(GroupMembershipCredential)
-    Issuer-->>Holder: GroupMembershipCredential
+    Authority->>Issuer: send credential offer<br/>(holder, mds-group-membership-credential)
+    Issuer-->>Authority: 204
 ```

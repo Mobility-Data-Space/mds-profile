@@ -7,7 +7,7 @@
 
 ## Introduction
 
-This document specifies the MDS ODRL profile: the left operands MDS defines in the namespace `https://w3id.org/mobility-dataspace/2026/1/policy/`, how a policy writes constraints on them, and how a connector evaluates them. Policies are ODRL policies as carried by the Dataspace Protocol 2025-1.
+This document specifies the MDS ODRL profile: the left operands MDS defines in the namespace `https://w3id.org/mobility-dataspace/2026/1/policy/`, how a provider writes constraints on them, and how a participant's connector evaluates them. Policies are ODRL policies as carried by the Dataspace Protocol 2025-1.
 
 | Operand | Denotes | Evaluated against |
 |---|---|---|
@@ -15,6 +15,10 @@ This document specifies the MDS ODRL profile: the left operands MDS defines in t
 | [`ParticipantId`](#participantid) | the counterparty's `did:web` DID | an MDS MembershipCredential |
 | [`Group`](#group) | the MDS groups the counterparty belongs to | an MDS GroupMembershipCredential |
 | [`EvaluationTime`](#evaluationtime) | the instant of evaluation | the evaluating connector's clock |
+
+### Constraints outside this profile
+
+A connector **MUST** evaluate as not satisfied a constraint whose left operand is in `https://w3id.org/mobility-dataspace/2026/1/policy/` and that does not follow this profile: an operand other than the four above, or an operator or right operand the operand does not allow.
 
 ## Membership
 
@@ -36,15 +40,9 @@ The counterparty is an MDS participant.
 
 ### Evaluation
 
-Permits when the counterparty presents at least one MDS MembershipCredential: a credential that
+**Credential binding:** MDS MembershipCredential, `https://w3id.org/mobility-dataspace/2026/1/credentials/MembershipCredential`. Its presence is evaluated; no claim is read.
 
-1. is valid: its proof verifies, it is within its validity period, it is not revoked, and its `credentialSubject.id` is the counterparty's DID;
-2. has a `type` that expands to `https://w3id.org/mobility-dataspace/2026/1/credentials/MembershipCredential`: the `type` holds that IRI, or holds `MembershipCredential` with the [MDS credentials context](https://mobility-data-space.github.io/mds-profile/2026/1/credentials/) in its `@context`;
-3. is issued by an MDS trusted issuer ([MDS trusted issuers](https://mobility-data-space.github.io/mds-profile/2026/1/)).
-
-A credential of the same type name from any other issuer, including an issuer the connector trusts for another dataspace, is not an MDS MembershipCredential. The type IRI states what a credential claims; the issuer decides whether the claim counts.
-
-A connector **MUST** reject, when the policy is created, a `Membership` constraint with another operator or right operand.
+A connector **MUST** evaluate a `Membership` constraint as satisfied when, and only when, the counterparty presents an MDS MembershipCredential.
 
 ## ParticipantId
 
@@ -52,7 +50,7 @@ A connector **MUST** reject, when the policy is created, a `Membership` constrai
 
 ### Definition
 
-The counterparty's participant identifier: its `did:web` DID ([MDS Participant DID Document](https://mobility-data-space.github.io/mds-profile/2026/1/)).
+The counterparty's participant identifier: its `did:web` DID ([Participant DID document](https://mobility-data-space.github.io/mds-profile/2026/1/#a-participant-did-document)).
 
 ### Constraint
 
@@ -71,14 +69,14 @@ The counterparty's participant identifier: its `did:web` DID ([MDS Participant D
 
 ### Evaluation
 
-Permits when the counterparty presents an MDS MembershipCredential (see [Membership, Evaluation](#membership)) whose `credentialSubject.id`, which is the counterparty's DID:
+**Credential binding:** MDS MembershipCredential, `https://w3id.org/mobility-dataspace/2026/1/credentials/MembershipCredential`.
+
+A connector **MUST** evaluate a `ParticipantId` constraint as satisfied when, and only when, the counterparty presents an MDS MembershipCredential whose `credentialSubject.id`:
 
 - equals the right operand (`eq`), or one of its DIDs (`isAnyOf`);
 - differs from the right operand (`neq`), or from all of its DIDs (`isNoneOf`).
 
-`neq` and `isNoneOf` exclude participants from the MDS members; they never permit a counterparty that does not present an MDS MembershipCredential.
-
-A connector **MUST** reject, when the policy is created, a `ParticipantId` constraint with another operator or right operand.
+`neq` and `isNoneOf` exclude participants from the MDS members. A connector **MUST NOT** evaluate a `neq` or `isNoneOf` constraint as satisfied for a counterparty that does not present an MDS MembershipCredential.
 
 ## Group
 
@@ -101,11 +99,9 @@ The MDS groups the counterparty belongs to, as issued by MDS.
 
 ### Evaluation
 
-The counterparty's groups are the `groups` of its MDS GroupMembershipCredential, split on `,`. An MDS GroupMembershipCredential meets the conditions of an MDS MembershipCredential (see [Membership, Evaluation](#membership)), with `https://w3id.org/mobility-dataspace/2026/1/credentials/GroupMembershipCredential` (or `GroupMembershipCredential` with the MDS credentials context) as its type.
+**Credential binding:** MDS GroupMembershipCredential, `https://w3id.org/mobility-dataspace/2026/1/credentials/GroupMembershipCredential`, split on `,`.
 
-Permits when the counterparty belongs to the group (`eq`), to at least one of the groups (`isAnyOf`), or to all of them (`isAllOf`).
-
-A connector **MUST** reject, when the policy is created, a `Group` constraint with another operator or right operand.
+A connector **MUST** evaluate a `Group` constraint as satisfied when, and only when, the counterparty presents an MDS GroupMembershipCredential whose `groups` include the group (`eq`), at least one of the groups (`isAnyOf`), or all of them (`isAllOf`).
 
 ## EvaluationTime
 
@@ -127,6 +123,6 @@ The instant at which the policy is evaluated.
 
 ### Evaluation
 
-Permits when the evaluating connector's clock at evaluation compares with the right operand as the operator states. No credential is involved.
+**Credential binding:** none. The evaluating connector's clock at evaluation is read.
 
-A connector **MUST** reject, when the policy is created, an `EvaluationTime` constraint with another operator or right operand.
+A connector **MUST** evaluate an `EvaluationTime` constraint as satisfied when, and only when, its clock at evaluation compares with the right operand as the operator states.
