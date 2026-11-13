@@ -1,8 +1,14 @@
 # mds-profile
 
-The **Mobility Data Space dataspace profile**: the configuration contract an EDC connector satisfies in order to participate in the MDS.
+The **Mobility Data Space dataspace profile**: the data space specifications between the participants of the MDS, the MDS Authority and the MDS Trusted Issuers for the dataspace to work.
 
-The connector distribution itself lives in [`mds-edc`](https://github.com/Mobility-Data-Space/mds-edc).
+| Role | Responsibility | Specified in |
+|---|---|---|
+| MDS Authority | governs the dataspace: decides membership and groups, and defines the usage policies and the data offers vocabulary that participants follow | the [credentials lifecycle](2026/1/credentials/mds-credentials-2026-1.md#credentials-lifecycle), the [ODRL profile](2026/1/policy/mds-odrl-profile-2026-1.md), the [data offers vocabulary](2026/1/vocabulary/mds-vocabulary-2026-1.md) |
+| MDS Trusted Issuers | issue the MDS credentials | [Issued Credentials](2026/1/credentials/mds-credentials-2026-1.md#issued-credentials), the [credential definitions](2026/1/credentials/mds-credentials-2026-1.md#mds-credential-definitions) |
+| Participant | provides and consumes data within the MDS, following the MDS Authority's usage policies and data offers vocabulary, and verifying MDS credentials | the [profile](2026/1/mds-2026-1.md), the [ODRL profile](2026/1/policy/mds-odrl-profile-2026-1.md), [Credentials Verification](2026/1/credentials/mds-credentials-2026-1.md#credentials-verification), the [data offers vocabulary](2026/1/vocabulary/mds-vocabulary-2026-1.md) |
+
+The reference connector lives in [`mds-edc`](https://github.com/Mobility-Data-Space/mds-edc).
 
 ## Versions
 
@@ -21,6 +27,8 @@ The repository mirrors the URI space of the profile, so every published artefact
 2026/1/credentials/context.jsonld                       credentials JSON-LD context
 2026/1/credentials/mds-credentials-2026-1.md            credential specification
 2026/1/credentials/*.schema.json                        credential JSON Schemas
+2026/1/vocabulary/mds-vocabulary-2026-1.md              data offers vocabulary specification
+2026/1/vocabulary/context.jsonld                        data offers vocabulary JSON-LD context
 examples/                                               non-normative examples
 ```
 
@@ -38,6 +46,8 @@ Everything is addressed through the [w3id.org](https://w3id.org) namespace `mobi
 | `https://w3id.org/mobility-dataspace/2026/1/credentials/` | the credentials vocabulary namespace |
 | `https://w3id.org/mobility-dataspace/2026/1/credentials/context.jsonld` | the credentials JSON-LD context |
 | `https://w3id.org/mobility-dataspace/2026/1/credentials/<Type>.schema.json` | a credential JSON Schema |
+| `https://w3id.org/mobility-dataspace/2026/1/vocabulary/` | the data offers vocabulary namespace; resolves to the data offers vocabulary specification |
+| `https://w3id.org/mobility-dataspace/2026/1/vocabulary/context.jsonld` | the data offers vocabulary JSON-LD context |
 
 Context and schema identifiers name documents and redirect with `302`. Namespace identifiers — and the vocabulary terms minted below them, such as `.../policy/ParticipantId` — name concepts rather than documents, so they redirect with `303 See Other` to the specification that describes them.
 
