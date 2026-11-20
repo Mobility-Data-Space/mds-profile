@@ -15,10 +15,11 @@ This document specifies the MDS ODRL profile: the left operands MDS defines in t
 | [`ParticipantId`](#participantid) | the counterparty's `did:web` DID | an MDS MembershipCredential |
 | [`Group`](#group) | the MDS groups the counterparty belongs to | an MDS GroupMembershipCredential |
 | [`EvaluationTime`](#evaluationtime) | the instant of evaluation | the evaluating connector's clock |
+| [`ManualApproval`](#manualapproval) | the provider approves the contract negotiation by hand | the provider's decision |
 
 ### Constraints outside this profile
 
-A connector **MUST** evaluate as not satisfied a constraint whose left operand is in `https://w3id.org/mobility-dataspace/2026/1/policy/` and that does not follow this profile: an operand other than the four above, or an operator or right operand the operand does not allow.
+A connector **MUST** evaluate as not satisfied a constraint whose left operand is in `https://w3id.org/mobility-dataspace/2026/1/policy/` and that does not follow this profile: an operand other than the five above, or an operator or right operand the operand does not allow.
 
 ## Membership
 
@@ -126,3 +127,27 @@ The instant at which the policy is evaluated.
 **Credential binding:** none. The evaluating connector's clock at evaluation is read.
 
 A connector **MUST** evaluate an `EvaluationTime` constraint as satisfied when, and only when, its clock at evaluation compares with the right operand as the operator states.
+
+## ManualApproval
+
+**IRI:** `https://w3id.org/mobility-dataspace/2026/1/policy/ManualApproval`
+
+### Definition
+
+The provider approves the contract negotiation by hand.
+
+### Constraint
+
+| Operators | Right operand |
+|---|---|
+| `eq` | the string `true` |
+
+```json
+{ "leftOperand": "ManualApproval", "operator": "eq", "rightOperand": "true" }
+```
+
+### Evaluation
+
+**Credential binding:** none. The provider's decision on the contract negotiation is read.
+
+A provider's connector **MUST** evaluate a `ManualApproval` constraint during a contract negotiation as satisfied when, and only when, the provider has approved that negotiation manually. Until the provider approves or rejects it, the negotiation stays pending; a rejection terminates it.

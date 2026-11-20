@@ -8,7 +8,6 @@
     "adms": "http://www.w3.org/ns/adms#",
     "mobilitydcatap": "https://w3id.org/mobilitydcat-ap/",
     "mobilitydcatap-theme": "https://w3id.org/mobilitydcat-ap/mobility-theme/",
-    "mds-vocabulary": "https://w3id.org/mobility-dataspace/2026/1/vocabulary/",
     "title": "dct:title",
     "description": "dct:description",
     "keywords": "dcat:keywords",
@@ -37,7 +36,6 @@
     "georeferencingMethod": "mobilitydcatap:georeferencingMethod",
     "mobilityDataStandard": "mobilitydcatap:mobilityDataStandard",
     "schema": "mobilitydcatap:schema",
-    "downloadURL": "dcat:downloadURL",
-    "manualApproval": "mds-vocabulary:manualApproval"
+    "downloadURL": "dcat:downloadURL"
   }
 }

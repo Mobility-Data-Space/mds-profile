@@ -105,7 +105,7 @@ The holder's Credential Service **MUST** support the DCP offer endpoint and init
 
 ### Membership revocation
 
-Revoking a membership means revoking every outstanding MDS credential of the holder, then deleting the holder at the MDS Trusted Issuers.
+Revoking a membership means deleting the holder at the MDS Trusted Issuers, so it cannot obtain new credentials, then revoking every outstanding MDS credential of the holder. Issued credentials outlive the holder record and are still found by the holder's DID. In the other order, a credential issued between the revocation and the deletion would stay valid.
 
 ```mermaid
 sequenceDiagram
@@ -114,14 +114,14 @@ sequenceDiagram
     participant Issuer as MDS Trusted Issuer
 
     Note over Authority: revoke membership
-    Authority->>Issuer: query credentials for holder
+    Authority->>Issuer: delete holder
+    Issuer-->>Authority: 204
+    Authority->>Issuer: query credentials for holder DID
     Issuer-->>Authority: credential ids
     loop each MembershipCredential / GroupMembershipCredential
         Authority->>Issuer: revoke credential
         Issuer-->>Authority: 204
     end
-    Authority->>Issuer: delete holder
-    Issuer-->>Authority: 204
 ```
 
 ### Group change
