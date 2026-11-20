@@ -9,6 +9,7 @@
     "ParticipantId": "mds-policy:ParticipantId",
     "Membership": "mds-policy:Membership",
     "Group": "mds-policy:Group",
-    "EvaluationTime": "mds-policy:EvaluationTime"
+    "EvaluationTime": "mds-policy:EvaluationTime",
+    "ManualApproval": "mds-policy:ManualApproval"
   }
 }

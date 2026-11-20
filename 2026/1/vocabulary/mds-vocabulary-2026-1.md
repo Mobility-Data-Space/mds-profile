@@ -7,7 +7,7 @@
 
 ## Introduction
 
-This document specifies the MDS data offers vocabulary: which properties an MDS asset has, which of them are required, and which values some of them take. For datasets destined to MDS, a provider lists in its catalog only those whose assets conform ([Validation](#validation)). The vocabulary implements mobilityDCAT-AP and defines one term of its own, `manualApproval`, in `https://w3id.org/mobility-dataspace/2026/1/vocabulary/` ([MDS terms](#mds-terms)).
+This document specifies the MDS data offers vocabulary: which properties an MDS dataset has, which of them are required, and which values some of them take. For datasets destined to MDS, a provider lists in its catalog only those that conform ([Validation](#validation)). The vocabulary implements mobilityDCAT-AP.
 
 Prefixes:
 
@@ -21,15 +21,14 @@ Prefixes:
 | `mobilitydcatap` | `https://w3id.org/mobilitydcat-ap/` |
 | `mobilitydcatap-theme` | `https://w3id.org/mobilitydcat-ap/mobility-theme/` |
 | `rdfs` | `http://www.w3.org/2000/01/rdf-schema#` |
-| `mds-vocabulary` | `https://w3id.org/mobility-dataspace/2026/1/vocabulary/` |
 
 ## Accepted properties
 
-An asset conforms to this vocabulary when it has every required property, has no property other than those listed here, at any nesting level, and its values follow [Mobility themes](#mobility-themes) and [Transport modes](#transport-modes). A provider's obligation is in [Validation](#validation).
+A dataset conforms to this vocabulary when it has every required property, has no property other than those listed here, at any nesting level, and its values follow [Mobility themes](#mobility-themes) and [Transport modes](#transport-modes). A provider's obligation is in [Validation](#validation).
 
 ### Required
 
-A conforming asset has each of these properties.
+A conforming dataset has each of these properties.
 
 | Property | IRI |
 |---|---|
@@ -64,25 +63,19 @@ A conforming asset has each of these properties.
 | `mobilitydcatap:mobilityDataStandard` → `@id` | `https://w3id.org/mobilitydcat-ap/mobilityDataStandard` → `@id` |
 | `mobilitydcatap:mobilityDataStandard` → `mobilitydcatap:schema` → `dcat:downloadURL` | `https://w3id.org/mobilitydcat-ap/mobilityDataStandard` → `https://w3id.org/mobilitydcat-ap/schema` → `http://www.w3.org/ns/dcat#downloadURL` |
 | `mobilitydcatap:mobilityDataStandard` → `mobilitydcatap:schema` → `rdfs:Literal` | `https://w3id.org/mobilitydcat-ap/mobilityDataStandard` → `https://w3id.org/mobilitydcat-ap/schema` → `http://www.w3.org/2000/01/rdf-schema#Literal` |
-| `mds-vocabulary:manualApproval` | `https://w3id.org/mobility-dataspace/2026/1/vocabulary/manualApproval` |
 
 ## Validation
 
-For datasets destined to MDS, a provider **MUST** list in its catalog only those whose assets conform to this vocabulary:
+For datasets destined to MDS, a provider **MUST** list in its catalog only those that conform to this vocabulary:
 
-- an asset has required properties;
-- an asset has only accepted properties, apart from `@type`;
-- an asset's category, subcategory or transport mode is one of the values listed in [Mobility themes](#mobility-themes) and [Transport modes](#transport-modes).
+- a dataset has every required property;
+- a dataset has only accepted properties, apart from `@type`;
+- a dataset's category, subcategory or transport mode is one of the values listed in [Mobility themes](#mobility-themes) and [Transport modes](#transport-modes).
 
-*Note:* A MDS EDC connector rejects a non-conforming asset when it is created or updated. It does so in the EDC extension [`semantic-validator`](https://github.com/Mobility-Data-Space/mds-edc/tree/main/extensions/semantic-validator), as a Management API validator for `edc:Asset`.
+*Notes:*
 
-## MDS terms
-
-| Term | IRI | Values | Meaning |
-|---|---|---|---|
-| `manualApproval` | `https://w3id.org/mobility-dataspace/2026/1/vocabulary/manualApproval` | the string `true` or `false` | `true`: the provider approves each contract negotiation for this dataset by hand, so a negotiation may stay pending. Absent or `false`: negotiations are decided by the policy alone. |
-
-The value of `manualApproval` is a string, not a JSON boolean, like the right operands of the MDS policies.
+- A required property is only checked for presence, so an empty string is accepted.
+- The vocabulary is closed: any property not in the vocabulary is rejected, at the top level and inside nested objects. This is the rule users are most likely to run into.
 
 ## Mobility themes
 
@@ -114,7 +107,7 @@ The mobility theme (`mobilitydcatap:mobilityTheme`) classifies a data offer by a
 
 ### Subcategories
 
-`mobilitydcatap-theme:data-content-sub-category` **MUST** be one listed for the asset's category. A category without subcategories allows none.
+`mobilitydcatap-theme:data-content-sub-category` **MUST** be one listed for the dataset's category. A category without subcategories allows none.
 
 | Category | Subcategories |
 |---|---|
