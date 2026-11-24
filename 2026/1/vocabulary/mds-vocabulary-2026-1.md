@@ -66,15 +66,27 @@ A conforming dataset has each of these properties.
 
 ## Validation
 
-For datasets destined to MDS, a provider **MUST** list in its catalog only those that conform to this vocabulary:
+For datasets destined to MDS, a provider **MUST** list in its catalog only those that conform to this vocabulary.
 
-- a dataset has every required property;
-- a dataset has only accepted properties, apart from `@type`;
-- a dataset's category, subcategory or transport mode is one of the values listed in [Mobility themes](#mobility-themes) and [Transport modes](#transport-modes).
+The rules apply to the **expanded** JSON-LD form of a dataset's properties, so property names are full IRIs and values are JSON-LD value objects (`[{"@value": "..."}]`), whatever prefixes were used.
+
+1. **Required properties**
+   - `dct:title` is present;
+   - `mobilitydcatap:mobilityTheme` is present and contains a `mobilitydcatap-theme:data-content-category`.
+2. **Accepted properties**
+   - only the [accepted properties](#accepted-properties) are present, at the top level and inside nested objects.
+3. **Enumerations**
+   - the category is one of the [categories](#categories);
+   - the subcategory, if present, is one of the [subcategories](#subcategories) of the category;
+   - the transport mode, if present, is one of the [transport modes](#transport-modes).
+4. **Structure**
+   - a property holds values, not objects, except the nested ones: `dct:spatial`, `dct:temporal`, `mobilitydcatap:mobilityTheme`, `mobilitydcatap:mobilityDataStandard` and its `mobilitydcatap:schema`;
+   - the category, the subcategory and the transport mode each hold a single value.
 
 *Notes:*
 
 - A required property is only checked for presence, so an empty string is accepted.
+- Formats are not checked: URLs, dates and language codes are accepted as any value.
 - The vocabulary is closed: any property not in the vocabulary is rejected, at the top level and inside nested objects. This is the rule users are most likely to run into.
 
 ## Mobility themes
