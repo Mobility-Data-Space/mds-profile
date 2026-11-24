@@ -21,7 +21,7 @@ This document specifies the MDS ODRL profile: the left operands MDS defines in t
 
 A connector **MUST** evaluate as not satisfied a constraint whose left operand is in `https://w3id.org/mobility-dataspace/2026/1/policy/` and that does not follow this profile: an operand other than the five above, or an operator or right operand the operand does not allow.
 
-## Membership
+## <a id="Membership"></a>Membership
 
 **IRI:** `https://w3id.org/mobility-dataspace/2026/1/policy/Membership`
 
@@ -45,7 +45,7 @@ The counterparty is an MDS participant.
 
 A connector **MUST** evaluate a `Membership` constraint as satisfied when, and only when, the counterparty presents an MDS MembershipCredential.
 
-## ParticipantId
+## <a id="ParticipantId"></a>ParticipantId
 
 **IRI:** `https://w3id.org/mobility-dataspace/2026/1/policy/ParticipantId`
 
@@ -79,7 +79,7 @@ A connector **MUST** evaluate a `ParticipantId` constraint as satisfied when, an
 
 `neq` and `isNoneOf` exclude participants from the MDS members. A connector **MUST NOT** evaluate a `neq` or `isNoneOf` constraint as satisfied for a counterparty that does not present an MDS MembershipCredential.
 
-## Group
+## <a id="Group"></a>Group
 
 **IRI:** `https://w3id.org/mobility-dataspace/2026/1/policy/Group`
 
@@ -104,7 +104,7 @@ The MDS groups the counterparty belongs to, as issued by MDS.
 
 A connector **MUST** evaluate a `Group` constraint as satisfied when, and only when, the counterparty presents an MDS GroupMembershipCredential whose `groups` include the group (`eq`), at least one of the groups (`isAnyOf`), or all of them (`isAllOf`).
 
-## EvaluationTime
+## <a id="EvaluationTime"></a>EvaluationTime
 
 **IRI:** `https://w3id.org/mobility-dataspace/2026/1/policy/EvaluationTime`
 
@@ -128,7 +128,7 @@ The instant at which the policy is evaluated.
 
 A connector **MUST** evaluate an `EvaluationTime` constraint as satisfied when, and only when, its clock at evaluation compares with the right operand as the operator states.
 
-## ManualApproval
+## <a id="ManualApproval"></a>ManualApproval
 
 **IRI:** `https://w3id.org/mobility-dataspace/2026/1/policy/ManualApproval`
 

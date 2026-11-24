@@ -36,20 +36,20 @@ A verifier **MUST NOT** evaluate an MDS credential that is revoked or outside it
 
 ## Credentials
 
-### MembershipCredential
+### <a id="MembershipCredential"></a>MembershipCredential
 
 - States that the subject is a participant of the Mobility Data Space.
 - It is the default credential of the dataspace: every other MDS credential presupposes it.
 - Issued by an MDS Trusted Issuer once onboarding completes.
 - Membership is evidenced by holding an MDS MembershipCredential ([Credentials Verification](#credentials-verification)).
 
-### GroupMembershipCredential
+### <a id="GroupMembershipCredential"></a>GroupMembershipCredential
 
 - States that the subject belongs to one or more MDS groups.
 - A group is a set of participants maintained by the MDS Authority for policy targeting, so a provider can restrict an offer to a category of consumers without enumerating their DIDs.
 - The set of valid identifiers is maintained by the MDS Authority and is not fixed by this profile version.
 
-`groups` is a **string** holding the subject's group identifiers separated by commas (for example `"public-transport,parking-operators"`). Consumers **MUST** split it on `,` to obtain the individual identifiers.
+<a id="groups"></a>`groups` is a **string** holding the subject's group identifiers separated by commas (for example `"public-transport,parking-operators"`). Consumers **MUST** split it on `,` to obtain the individual identifiers.
 
 A GroupMembershipCredential is issued only to MDS members and lists all the groups of its subject. When a participant's group set changes, it is revoked and replaced (see [Credentials lifecycle](#credentials-lifecycle)).
 
